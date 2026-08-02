@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Bingo Night — multiplayer
 
 5×5 cards (numbers 1–25, no free space). Players take turns picking a number;
@@ -57,3 +58,6 @@ connect a KV database (see below), since game state lives there.
   game night, no WebSocket server required.
 - Free tier of Vercel + Vercel KV comfortably covers a room of 10 players
   playing a game or two.
+=======
+# Bingo
+>>>>>>> 915d8a8e03bb62d3bf0c52b371bf7070723c9950
