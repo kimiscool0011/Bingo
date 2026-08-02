@@ -1,0 +1,271 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import { useParams } from "next/navigation";
+
+const AVATAR_COLORS = ["#D9835A", "#4C8C6D", "#E3AE3D", "#C5432E", "#3D7A5F", "#B87BAC", "#5B87B0", "#D4A24C", "#8FA34D", "#C06B5C"];
+
+export default function RoomPage() {
+  const { code } = useParams();
+  const [playerId, setPlayerId] = useState(null);
+  const [checkedStorage, setCheckedStorage] = useState(false);
+  const [joinName, setJoinName] = useState("");
+  const [joinError, setJoinError] = useState("");
+  const [joining, setJoining] = useState(false);
+
+  const [state, setState] = useState(null);
+  const [actionError, setActionError] = useState("");
+  const [starting, setStarting] = useState(false);
+  const [calling, setCalling] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(`bingo:${code}`);
+    setPlayerId(stored);
+    setCheckedStorage(true);
+  }, [code]);
+
+  const fetchState = useCallback(async () => {
+    if (!playerId) return;
+    try {
+      const res = await fetch(`/api/room/${code}/state?playerId=${playerId}`);
+      const data = await res.json();
+      if (!res.ok) {
+        setActionError(data.error || "Something went wrong");
+        return;
+      }
+      setState(data);
+    } catch {
+      // silent - will retry on next poll
+    }
+  }, [code, playerId]);
+
+  useEffect(() => {
+    if (!playerId) return;
+    fetchState();
+    const interval = setInterval(fetchState, 2000);
+    return () => clearInterval(interval);
+  }, [playerId, fetchState]);
+
+  const doJoin = async () => {
+    if (!joinName.trim()) return;
+    setJoining(true);
+    setJoinError("");
+    try {
+      const res = await fetch(`/api/room/${code}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: joinName.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Could not join");
+      localStorage.setItem(`bingo:${code}`, data.playerId);
+      setPlayerId(data.playerId);
+    } catch (e) {
+      setJoinError(e.message);
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  const startGame = async () => {
+    setStarting(true);
+    setActionError("");
+    try {
+      const res = await fetch(`/api/room/${code}/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      fetchState();
+    } catch (e) {
+      setActionError(e.message);
+    } finally {
+      setStarting(false);
+    }
+  };
+
+  const callNumber = async (n) => {
+    setCalling(true);
+    setActionError("");
+    try {
+      const res = await fetch(`/api/room/${code}/call`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId, number: n }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      fetchState();
+    } catch (e) {
+      setActionError(e.message);
+    } finally {
+      setCalling(false);
+    }
+  };
+
+  if (!checkedStorage) return null;
+
+  // ---- Join screen (no local playerId for this room yet) ----
+  if (!playerId) {
+    return (
+      <div className="wrap">
+        <h1 className="title stamp">BINGO NIGHT</h1>
+        <div className="panel">
+          <p className="subtitle" style={{ marginBottom: 10 }}>
+            Joining room <span className="code-badge" style={{ fontSize: "1rem", padding: "4px 10px" }}>{code}</span>
+          </p>
+          <input
+            type="text"
+            placeholder="Your name"
+            value={joinName}
+            onChange={(e) => setJoinName(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && doJoin()}
+            style={{ marginBottom: 12 }}
+          />
+          <button className="btn gold" onClick={doJoin} disabled={!joinName.trim() || joining}>
+            {joining ? "Joining…" : "Join room"}
+          </button>
+          {joinError && <p style={{ color: "#ffb3a3", marginTop: 10 }}>{joinError}</p>}
+        </div>
+      </div>
+    );
+  }
+
+  if (!state) {
+    return (
+      <div className="wrap">
+        <p className="subtitle">Loading room…</p>
+      </div>
+    );
+  }
+
+  // ---- Lobby ----
+  if (state.status === "waiting") {
+    const me = state.players.find((p) => p.isYou);
+    return (
+      <div className="wrap">
+        <h1 className="title stamp">BINGO NIGHT</h1>
+        <p className="subtitle" style={{ marginBottom: 20 }}>
+          Room code — share this with everyone playing:
+        </p>
+        <div className="code-badge" style={{ marginBottom: 20 }}>{code}</div>
+
+        <div className="panel">
+          <h2 className="stamp" style={{ marginTop: 0 }}>Players ({state.players.length}/10)</h2>
+          <div>
+            {state.players.map((p, i) => (
+              <span className="player-chip" key={p.id}>
+                <span className="avatar" style={{ background: AVATAR_COLORS[i % AVATAR_COLORS.length] }}>
+                  {p.name[0]?.toUpperCase()}
+                </span>
+                {p.name} {p.isHost && "★"} {p.isYou && "(you)"}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {me?.isHost ? (
+          <button className="btn gold" onClick={startGame} disabled={state.players.length < 2 || starting}>
+            {starting ? "Starting…" : state.players.length < 2 ? "Waiting for more players…" : "Start game"}
+          </button>
+        ) : (
+          <p className="subtitle">Waiting for the host to start the game…</p>
+        )}
+        {actionError && <p style={{ color: "#ffb3a3", marginTop: 10 }}>{actionError}</p>}
+      </div>
+    );
+  }
+
+  // ---- Playing / Finished ----
+  const calledSet = new Set(state.calledNumbers);
+  const currentTurnName = state.players.find((p) => p.id === state.currentTurnPlayerId)?.name;
+
+  return (
+    <div className="wrap">
+      <h1 className="title stamp">BINGO NIGHT</h1>
+
+      {state.status === "finished" && (
+        <div className="banner">
+          {state.winnerName
+            ? `🎉 ${state.winnerIsYou ? "You" : state.winnerName} completed ${state.winLinesNeeded} lines — BINGO!`
+            : "All 25 numbers called — no one reached 5 lines. It's a draw."}
+        </div>
+      )}
+
+      {state.status === "playing" && (
+        <div className="turn-strip">
+          {state.isYourTurn ? (
+            <strong>Your turn — pick a number</strong>
+          ) : (
+            <>Waiting for <strong>{currentTurnName}</strong> to pick a number…</>
+          )}
+        </div>
+      )}
+
+      <div className="panel" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div style={{ fontSize: "0.8rem", opacity: 0.7 }}>Your lines</div>
+          <div className="stamp" style={{ fontSize: "1.6rem", color: "var(--gold)" }}>
+            {state.myLineCount} / {state.winLinesNeeded}
+          </div>
+        </div>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: "0.8rem", opacity: 0.7 }}>Called so far</div>
+          <div className="stamp" style={{ fontSize: "1.6rem" }}>{state.calledNumbers.length} / 25</div>
+        </div>
+      </div>
+
+      {/* My card */}
+      <div className="card-panel" style={{ marginBottom: 20 }}>
+        <div className="grid5">
+          {state.myCard.flat().map((val, i) => {
+            const marked = calledSet.has(val);
+            return (
+              <div key={i} className={`cell ${marked ? "marked" : ""}`}>
+                {val}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Number picker - only usable on your turn */}
+      {state.status === "playing" && (
+        <div className="panel">
+          <h2 className="stamp" style={{ marginTop: 0, fontSize: "1.1rem" }}>
+            {state.isYourTurn ? "Pick a number" : "Numbers"}
+          </h2>
+          <div className="grid5" style={{ gridTemplateColumns: "repeat(5, 1fr)", gap: 6 }}>
+            {Array.from({ length: 25 }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                className={`picker-btn ${calledSet.has(n) ? "called" : ""}`}
+                disabled={!state.isYourTurn || calledSet.has(n) || calling}
+                onClick={() => callNumber(n)}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Standings */}
+      <div className="panel">
+        <h2 className="stamp" style={{ marginTop: 0, fontSize: "1.1rem" }}>Standings</h2>
+        {[...state.players]
+          .sort((a, b) => b.lineCount - a.lineCount)
+          .map((p) => (
+            <div key={p.id} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", fontSize: "0.9rem" }}>
+              <span>{p.name} {p.isYou && "(you)"}</span>
+              <span style={{ opacity: 0.8 }}>{p.lineCount}/{state.winLinesNeeded} lines</span>
+            </div>
+          ))}
+      </div>
+
+      {actionError && <p style={{ color: "#ffb3a3" }}>{actionError}</p>}
+    </div>
+  );
+}
