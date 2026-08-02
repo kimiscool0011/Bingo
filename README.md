@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Bingo Night — multiplayer
 
 5×5 cards (numbers 1–25, no free space). Players take turns picking a number;
@@ -29,13 +28,18 @@ connect a KV database (see below), since game state lives there.
 - The first deploy will succeed but the game itself won't work yet — it
   needs a database for room state (next step).
 
-**3. Add a KV (Redis) database**
-- In your Vercel project → **Storage** tab → **Create Database** → choose
-  **KV** (this is Vercel's managed Redis, provided by Upstash)
-- Once created, click **Connect Project** and select this project —
-  Vercel automatically adds the required environment variables
-  (`KV_REST_API_URL`, `KV_REST_API_TOKEN`, etc.) for you. No manual `.env`
-  editing needed.
+**3. Add a Redis database (via Upstash)**
+- In your Vercel project → **Storage** tab → **Browse Storage** →
+  under **Marketplace Database Providers**, choose **Upstash**
+- Create a new Redis database when prompted, then **Connect** it to this
+  project — Vercel automatically adds the required environment variables
+  (`KV_REST_API_URL` / `KV_REST_API_TOKEN`, or `UPSTASH_REDIS_REST_URL` /
+  `UPSTASH_REDIS_REST_TOKEN` depending on the integration version) for
+  you. No manual `.env` editing needed — the code checks for either
+  naming.
+- (Vercel's own "KV" product was retired in favor of this Upstash
+  integration, so "KV" won't appear as its own option anymore — Upstash
+  is its replacement.)
 
 **4. Redeploy**
 - Go to the **Deployments** tab → click the **⋯** menu on the latest
@@ -58,6 +62,3 @@ connect a KV database (see below), since game state lives there.
   game night, no WebSocket server required.
 - Free tier of Vercel + Vercel KV comfortably covers a room of 10 players
   playing a game or two.
-=======
-# Bingo
->>>>>>> 915d8a8e03bb62d3bf0c52b371bf7070723c9950
