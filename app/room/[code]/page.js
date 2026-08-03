@@ -17,6 +17,38 @@ const AVATAR_COLORS = [
 ];
 const TOAST_DURATION = 4000;
 
+function ToastStack({ toasts }) {
+  return (
+    <div className="toast-stack">
+      {toasts.map((t) => (
+        <div className="toast" key={t.id}>
+          <b>{t.name}:</b> {t.text}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ChatBar({ chatText, setChatText, sendChat, sendingChat }) {
+  return (
+    <div className="panel">
+      <div className="chat-bar">
+        <input
+          type="text"
+          placeholder="Send a message…"
+          value={chatText}
+          maxLength={200}
+          onChange={(e) => setChatText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendChat()}
+        />
+        <button onClick={sendChat} disabled={!chatText.trim() || sendingChat}>
+          Send
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function RoomPage() {
   const { code } = useParams();
   const [playerId, setPlayerId] = useState(null);
@@ -146,6 +178,7 @@ export default function RoomPage() {
     const text = chatText.trim();
     if (!text) return;
     setSendingChat(true);
+    setChatText("");
     try {
       const res = await fetch(`/api/room/${code}/chat`, {
         method: "POST",
@@ -154,7 +187,6 @@ export default function RoomPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setChatText("");
       fetchState();
     } catch (e) {
       setActionError(e.message);
@@ -165,39 +197,11 @@ export default function RoomPage() {
 
   if (!checkedStorage) return null;
 
-  const ToastStack = () => (
-    <div className="toast-stack">
-      {toasts.map((t) => (
-        <div className="toast" key={t.id}>
-          <b>{t.name}:</b> {t.text}
-        </div>
-      ))}
-    </div>
-  );
-
-  const ChatBar = () => (
-    <div className="panel">
-      <div className="chat-bar">
-        <input
-          type="text"
-          placeholder="Send a message…"
-          value={chatText}
-          maxLength={200}
-          onChange={(e) => setChatText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendChat()}
-        />
-        <button onClick={sendChat} disabled={!chatText.trim() || sendingChat}>
-          Send
-        </button>
-      </div>
-    </div>
-  );
-
   // ---- Join screen (no local playerId for this room yet) ----
   if (!playerId) {
     return (
       <div className="wrap">
-        <h1 className="title stamp">BINGO NIGHT</h1>
+        <h1 className="title stamp">KimIsCool Bingo</h1>
         <div className="panel">
           <p className="subtitle" style={{ marginBottom: 10 }}>
             Joining room{" "}
@@ -244,8 +248,8 @@ export default function RoomPage() {
     const me = state.players.find((p) => p.isYou);
     return (
       <div className="wrap">
-        <ToastStack />
-        <h1 className="title stamp">BINGO NIGHT</h1>
+        <ToastStack toasts={toasts} />
+        <h1 className="title stamp">KimIsCool Bingo</h1>
         <p className="subtitle" style={{ marginBottom: 20 }}>
           Room code — share this with everyone playing:
         </p>
@@ -294,7 +298,12 @@ export default function RoomPage() {
         )}
 
         <div style={{ marginTop: 20 }}>
-          <ChatBar />
+          <ChatBar
+            chatText={chatText}
+            setChatText={setChatText}
+            sendChat={sendChat}
+            sendingChat={sendingChat}
+          />
         </div>
       </div>
     );
@@ -308,8 +317,8 @@ export default function RoomPage() {
 
   return (
     <div className="wrap">
-      <ToastStack />
-      <h1 className="title stamp">BINGO NIGHT</h1>
+      <ToastStack toasts={toasts} />
+      <h1 className="title stamp">KimIsCool Bingo</h1>
 
       {state.status === "finished" && (
         <div className="banner">
@@ -423,7 +432,12 @@ export default function RoomPage() {
 
       {actionError && <p style={{ color: "#ffb3a3" }}>{actionError}</p>}
 
-      <ChatBar />
+      <ChatBar
+        chatText={chatText}
+        setChatText={setChatText}
+        sendChat={sendChat}
+        sendingChat={sendingChat}
+      />
     </div>
   );
 }
