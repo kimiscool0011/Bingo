@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
-  --felt: #12362b;
+  --felt: #13382d;
   --felt-dark: #0b241c;
   --cream: #f4eedd;
   --dauber: #c5432e;
@@ -9,17 +9,25 @@
   --ink: #1c2b24;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at 50% 0%, var(--felt), var(--felt-dark) 70%);
+  background: radial-gradient(
+    circle at 50% 0%,
+    var(--felt),
+    var(--felt-dark) 70%
+  );
   color: var(--cream);
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
-.stamp { font-family: 'Baloo 2', cursive; }
+.stamp {
+  font-family: "Baloo 2", cursive;
+}
 
 .wrap {
   max-width: 640px;
@@ -42,7 +50,11 @@ body {
   margin: 0 0 4px;
 }
 
-.subtitle { opacity: 0.7; font-size: 0.9rem; margin: 0; }
+.subtitle {
+  opacity: 0.7;
+  font-size: 0.9rem;
+  margin: 0;
+}
 
 input[type="text"] {
   width: 100%;
@@ -63,7 +75,7 @@ input[type="text"] {
   border: none;
   border-radius: 14px;
   padding: 13px 20px;
-  font-family: 'Baloo 2', cursive;
+  font-family: "Baloo 2", cursive;
   font-weight: 800;
   font-size: 1.05rem;
   cursor: pointer;
@@ -71,14 +83,22 @@ input[type="text"] {
   background: var(--dauber);
   color: var(--cream);
 }
-.btn:hover { filter: brightness(1.1); }
-.btn:disabled { opacity: 0.35; cursor: not-allowed; }
-.btn.gold { background: var(--gold); color: var(--ink); }
+.btn:hover {
+  filter: brightness(1.1);
+}
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.btn.gold {
+  background: var(--gold);
+  color: var(--ink);
+}
 .btn.ghost {
   background: transparent;
-  border: 1px solid rgba(244,238,221,0.3);
+  border: 1px solid rgba(244, 238, 221, 0.3);
   color: var(--cream);
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 600;
   font-size: 0.85rem;
   padding: 9px 16px;
@@ -86,7 +106,7 @@ input[type="text"] {
 
 .code-badge {
   display: inline-block;
-  font-family: 'Baloo 2', cursive;
+  font-family: "Baloo 2", cursive;
   font-size: 1.6rem;
   letter-spacing: 4px;
   background: var(--gold);
@@ -107,10 +127,15 @@ input[type="text"] {
   margin: 3px;
 }
 .avatar {
-  width: 24px; height: 24px;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.7rem; font-weight: 700; color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .grid5 {
@@ -136,8 +161,8 @@ input[type="text"] {
   justify-content: center;
   font-weight: 700;
   font-size: 1rem;
-  border: 1.5px solid rgba(28,43,36,0.15);
-  background: rgba(28,43,36,0.03);
+  border: 1.5px solid rgba(28, 43, 36, 0.15);
+  background: rgba(28, 43, 36, 0.03);
   position: relative;
 }
 .cell.marked {
@@ -146,9 +171,19 @@ input[type="text"] {
   border-color: var(--dauber);
 }
 
-.cell.clickable { cursor: pointer; transition: border-color 0.15s ease, transform 0.1s ease; }
-.cell.clickable:hover { border-color: var(--gold); transform: scale(1.04); }
-.cell.disabled { opacity: 0.55; }
+.cell.clickable {
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+.cell.clickable:hover {
+  border-color: var(--gold);
+  transform: scale(1.04);
+}
+.cell.disabled {
+  opacity: 0.55;
+}
 
 .game-layout {
   display: grid;
@@ -157,7 +192,9 @@ input[type="text"] {
   align-items: start;
 }
 @media (min-width: 760px) {
-  .game-layout { grid-template-columns: 1.15fr 0.85fr; }
+  .game-layout {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
 }
 
 .chat-panel {
@@ -171,7 +208,7 @@ input[type="text"] {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Baloo 2', cursive;
+  font-family: "Baloo 2", cursive;
   font-weight: 700;
   font-size: 1.1rem;
   margin-bottom: 12px;
@@ -189,9 +226,19 @@ input[type="text"] {
   margin-bottom: 12px;
   padding-right: 4px;
 }
-.chat-msg { font-size: 0.88rem; line-height: 1.4; }
-.chat-msg .name { color: var(--gold); font-weight: 700; }
-.chat-empty { opacity: 0.5; font-size: 0.85rem; font-style: italic; }
+.chat-msg {
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+.chat-msg .name {
+  color: var(--gold);
+  font-weight: 700;
+}
+.chat-empty {
+  opacity: 0.5;
+  font-size: 0.85rem;
+  font-style: italic;
+}
 
 .banner {
   background: var(--gold);
@@ -207,7 +254,7 @@ input[type="text"] {
   font-size: 0.95rem;
   padding: 10px;
   border-radius: 12px;
-  background: rgba(244,238,221,0.08);
+  background: rgba(244, 238, 221, 0.08);
   margin-bottom: 16px;
 }
 
@@ -224,13 +271,16 @@ input[type="text"] {
   border: none;
   border-radius: 12px;
   padding: 0 18px;
-  font-family: 'Baloo 2', cursive;
+  font-family: "Baloo 2", cursive;
   font-weight: 800;
   cursor: pointer;
   background: var(--gold);
   color: var(--ink);
 }
-.chat-bar button:disabled { opacity: 0.35; cursor: not-allowed; }
+.chat-bar button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 
 .toast-stack {
   position: fixed;
@@ -249,12 +299,20 @@ input[type="text"] {
   color: var(--ink);
   border-radius: 12px;
   padding: 10px 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   font-size: 0.88rem;
   animation: toastIn 0.25s ease-out both;
 }
-.toast b { color: var(--dauber); }
+.toast b {
+  color: var(--dauber);
+}
 @keyframes toastIn {
-  from { transform: translateY(-12px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
