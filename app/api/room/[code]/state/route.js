@@ -37,5 +37,6 @@ export async function GET(request, { params }) {
     winLinesNeeded: WIN_LINES_NEEDED,
     winnerName: winner ? winner.name : null,
     winnerIsYou: room.winnerId === playerId,
+    messages: room.messages || [],
   });
 }
