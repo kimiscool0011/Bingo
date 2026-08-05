@@ -40,10 +40,10 @@ export default function Home() {
 
   return (
     <div className="wrap">
-      <h1 className="title stamp">KimIsCool Bingo</h1>
+      <h1 className="title stamp">BINGO NIGHT</h1>
       <p className="subtitle">
-        Game rules: 5×5 cards, numbers 1–25, everyone takes a turn calling the
-        next number. First to complete 5 lines wins.
+        5×5 cards, numbers 1–25, everyone takes a turn calling the next number.
+        First to complete 5 lines wins.
       </p>
 
       <div className="panel" style={{ marginTop: 24 }}>
